@@ -1,0 +1,17 @@
+export const cores = {
+  fundo: "#F7F5EF",
+  verde: "#526B55",
+  verdeClaro: "#E4EBDF",
+  marrom: "#725B49",
+  texto: "#30372F",
+  branco: "#FFFFFF",
+  vermelho: "#B64B43",
+  border: "#E9E5DB",
+  borderLight: "#DEDCCF",
+  bgLight: "#EEEAE1",
+  textLight: "#555A52",
+  bgHeader: "#EAE7DE",
+  textSubtitle: "#E8D4C8",
+  bgError: "#F8E8E5",
+  header: "#DDE9D3",
+};
