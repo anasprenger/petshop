@@ -39,3 +39,6 @@ yarn-error.*
 # generated native folders
 /ios
 /android
+
+# variáveis de ambiente com senhas (use os arquivos .env.example como modelo)
+.env

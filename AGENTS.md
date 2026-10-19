@@ -1,5 +1,7 @@
 This is an Expo/React Native mobile application. Prioritize mobile-first patterns, performance, and cross-platform compatibility.
 
+The Expo app lives in `mobile/` (run the commands below from there). The REST API is in `backend/` (Express + MySQL) and the SQL scripts are in `database/`.
+
 ## Expo has changed — do not trust your training data
 
 Expo ships breaking changes every SDK release. APIs you remember are likely renamed, moved, or removed. Before writing any code that touches an Expo, EAS, or React Native API:
@@ -25,9 +27,8 @@ Run lint and typecheck before declaring any task done.
 
 ## Navigation & Routing
 
-- Use **Expo Router** for all navigation. Routes live in `src/app/` — every file there is a screen, `_layout.tsx` files define navigators. Keep non-route code (components, hooks, utils) outside `src/app/`.
-- Import `Link`, `router`, and `useLocalSearchParams` from `expo-router`.
-- Docs: https://docs.expo.dev/router/introduction.md
+- This project uses **React Navigation** (a project requirement): bottom tabs plus a native stack, set up in `mobile/src/navigation/AppNavigator.js`. Screens live in `mobile/src/screens/`. Do not migrate to Expo Router.
+- Docs: https://reactnavigation.org/docs/getting-started
 
 ## Building with EAS
 

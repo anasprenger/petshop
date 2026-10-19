@@ -1,0 +1,1433 @@
+<title>PetCare</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: painel da demonstração ao lado de uma moldura de iPhone com o app; no celular, o app ocupa a largura toda. */
+:root {
+  /* Paleta (a mesma de mobile/src/theme.js) */
+  --rose: #C74B7D;
+  --rose-press: #A93C68;
+  --on-rose: #FFFFFF;
+  --on-rose-dim: rgba(255, 255, 255, .78);
+  --blush: #FBE7EF;
+  --blush-line: #F2CFDD;
+  --canvas: #F6F3F5;
+  --surface: #FFFFFF;
+  --fill: #EFEAED;
+  --fill-strong: #E2DADF;
+  --ink: #221C20;
+  --ink-2: #70676C;
+  --ink-3: #A69DA2;
+  --line: #ECE4E8;
+  --page: #ECE6EA;
+  --bezel: #1E1A1C;
+  --bezel-edge: #3B3538;
+  --bar: rgba(255, 255, 255, .88);
+  --sheet: rgba(255, 255, 255, .96);
+  --scrim: rgba(34, 20, 28, .38);
+  --row-press: #FAF3F6;
+  --focus-bg: #FFF8FB;
+
+  --danger: #D23B4E;   --danger-soft: #FDECEE;
+  --ok: #1F8547;       --ok-soft: #E3F5E9;
+  --info: #2F64D6;     --info-soft: #E8EFFD;
+  --warn: #A35F00;     --warn-soft: #FFF1D9;
+
+  /* Espécies */
+  --sp-dog: #B8436F;   --sp-dog-bg: #FBE3EC;
+  --sp-cat: #6A52C4;   --sp-cat-bg: #EEE9FB;
+  --sp-bird: #1F7F64;  --sp-bird-bg: #E1F4EC;
+  --sp-rod: #B05C1A;   --sp-rod-bg: #FDEEE1;
+  --sp-rep: #4C7A22;   --sp-rep-bg: #EAF4DF;
+  --sp-etc: #6F676B;   --sp-etc-bg: #EFECEE;
+
+  /* Tipos de serviço */
+  --tp-banho: #2F72CF;      --tp-banho-bg: #E6F0FC;
+  --tp-tosa: #C74B7D;       --tp-tosa-bg: #FBE7EF;
+  --tp-consulta: #C2531F;   --tp-consulta-bg: #FDEDE3;
+  --tp-vacina: #1F8547;     --tp-vacina-bg: #E3F5E9;
+  --tp-hosp: #6A52C4;       --tp-hosp-bg: #EEE9FB;
+  --tp-outro: #6F676B;      --tp-outro-bg: #EFECEE;
+
+  --shadow: 0 1px 2px rgba(80, 30, 55, .05), 0 8px 20px -12px rgba(80, 30, 55, .18);
+  --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-display: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-num: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--page);
+  color: var(--ink);
+  font: 15px/1.45 var(--font);
+  -webkit-font-smoothing: antialiased;
+}
+button { font: inherit; color: inherit; background: none; border: 0; padding: 0; margin: 0; cursor: pointer; text-align: inherit; }
+button:focus-visible, .switch-row input:focus-visible { outline: 2px solid var(--rose); outline-offset: 2px; }
+.ic { width: 22px; height: 22px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+
+/* ---------- Página ---------- */
+.stage {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 56px;
+  padding-block: 40px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.panel { width: 300px; flex: none; display: flex; flex-direction: column; gap: 18px; padding-top: 28px; }
+.brand { display: flex; align-items: center; gap: 10px; font: 600 17px var(--font-display); }
+.brand-mark { width: 34px; height: 34px; border-radius: 10px; background: var(--rose); color: var(--on-rose); display: grid; place-items: center; }
+.brand-mark .ic { width: 20px; height: 20px; fill: var(--on-rose); stroke: none; }
+.panel h1 { margin: 0; font: 700 28px/1.15 var(--font-display); letter-spacing: -.02em; text-wrap: balance; }
+.lede { margin: 0; color: var(--ink-2); font-size: 15px; }
+.notice { background: var(--surface); border: 1px solid var(--blush-line); border-radius: 16px; padding: 14px 16px; }
+.notice-tag { font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--rose); }
+.notice p { margin: 6px 0 0; color: var(--ink-2); font-size: 14px; }
+.controls { display: flex; flex-direction: column; gap: 10px; }
+.panel-btn {
+  display: flex; align-items: center; gap: 8px; min-height: 46px; padding: 0 14px;
+  border-radius: 12px; background: var(--surface); border: 1px solid var(--line);
+  color: var(--rose); font-weight: 600;
+}
+.panel-btn:hover { background: var(--row-press); }
+.panel-btn .ic { width: 18px; height: 18px; }
+.switch-row {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
+  padding: 10px 14px; cursor: pointer;
+}
+.switch-row strong { font-weight: 600; }
+.switch-row small { display: block; color: var(--ink-2); font-size: 13px; }
+.switch-row input {
+  appearance: none; -webkit-appearance: none; margin: 0; flex: none; cursor: pointer;
+  width: 51px; height: 31px; border-radius: 999px; background: var(--fill-strong);
+  position: relative; transition: background .2s;
+}
+.switch-row input::after {
+  content: ""; position: absolute; top: 2px; left: 2px; width: 27px; height: 27px; border-radius: 50%;
+  background: var(--surface); box-shadow: 0 2px 4px rgba(0, 0, 0, .2); transition: transform .2s;
+}
+.switch-row input:checked { background: var(--danger); }
+.switch-row input:checked::after { transform: translateX(20px); }
+.tips-title { margin: 4px 0 0; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); }
+.tips { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 8px; color: var(--ink-2); font-size: 14px; }
+.tips li { display: flex; gap: 10px; }
+.tips li::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--rose); margin-top: 8px; flex: none; }
+
+/* ---------- Aparelho ---------- */
+.device { flex: none; }
+.phone {
+  position: relative; isolation: isolate;
+  width: 390px; height: 820px; border-radius: 56px; overflow: hidden;
+  background: var(--canvas);
+  display: flex; flex-direction: column;
+  box-shadow: 0 0 0 11px var(--bezel), 0 0 0 12.5px var(--bezel-edge), 0 40px 80px -30px rgba(70, 20, 45, .45);
+  margin: 12px;
+}
+.island { position: absolute; top: 11px; left: 50%; transform: translateX(-50%); width: 122px; height: 35px; border-radius: 20px; background: var(--bezel); z-index: 80; }
+.statusbar { flex: none; height: 54px; display: flex; align-items: center; justify-content: space-between; padding: 8px 30px 0 44px; font: 600 16px var(--font-display); }
+.sb-icons { display: flex; gap: 6px; align-items: center; }
+.sb-icons svg { fill: currentColor; display: block; }
+.phone::after { content: ""; position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%); width: 134px; height: 5px; border-radius: 3px; background: var(--ink); z-index: 80; pointer-events: none; }
+.app { flex: 1; min-height: 0; display: flex; flex-direction: column; position: relative; }
+
+/* ---------- Telas ---------- */
+.screen { flex: 1; min-height: 0; display: flex; flex-direction: column; background: var(--canvas); }
+.screen-body {
+  flex: 1; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+  padding: 4px 16px 28px; display: flex; flex-direction: column; gap: 24px;
+  scrollbar-width: none;
+}
+.screen-body::-webkit-scrollbar { display: none; }
+.screen-body > * { flex-shrink: 0; }
+.anim-push { animation: push .34s cubic-bezier(.2, .8, .2, 1) both; }
+.anim-pop { animation: pop .3s cubic-bezier(.2, .8, .2, 1) both; }
+.anim-modal { animation: modal .36s cubic-bezier(.2, .8, .2, 1) both; }
+.anim-fade { animation: fade .2s ease both; }
+@keyframes push { from { transform: translateX(30%); opacity: .3; } to { transform: none; opacity: 1; } }
+@keyframes pop { from { transform: translateX(-16%); opacity: .5; } to { transform: none; opacity: 1; } }
+@keyframes modal { from { transform: translateY(12%); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes fade { from { opacity: .4; } to { opacity: 1; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Cabeçalhos */
+.nav { flex: none; padding: 4px 16px 12px; }
+.nav-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 34px; }
+.eyebrow { font-size: 13px; font-weight: 600; color: var(--ink-2); }
+.large-title { margin: 0; font: 700 32px/1.12 var(--font-display); letter-spacing: -.025em; }
+.round-btn { width: 36px; height: 36px; border-radius: 50%; background: var(--blush); color: var(--rose); display: grid; place-items: center; }
+.round-btn:hover { background: var(--blush-line); }
+.round-btn .ic { width: 20px; height: 20px; stroke-width: 2.3; }
+.demo-chip { font-size: 11.5px; font-weight: 700; color: var(--rose); background: var(--blush); padding: 4px 10px; border-radius: 999px; letter-spacing: .02em; white-space: nowrap; }
+.navbar { flex: none; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 8px; min-height: 46px; padding: 0 8px; }
+.navbar-title { font: 600 17px var(--font-display); max-width: 170px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-align: center; }
+.nav-back { justify-self: start; display: inline-flex; align-items: center; max-width: 100%; min-height: 44px; color: var(--rose); font-size: 17px; padding-right: 6px; }
+.nav-back span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nav-back .ic { width: 26px; height: 26px; stroke-width: 2.4; }
+.nav-text { justify-self: start; min-height: 44px; padding: 0 8px; color: var(--rose); font-size: 17px; }
+
+/* Listas agrupadas */
+.group { background: var(--surface); border-radius: 18px; overflow: hidden; box-shadow: var(--shadow); }
+.row { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; min-height: 60px; padding: 11px 14px 11px 16px; text-align: left; }
+.row + .row::before { content: ""; position: absolute; top: 0; left: 68px; right: 0; height: 1px; background: var(--line); }
+.row-btn:hover, .row-btn:active { background: var(--row-press); }
+.row-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.row-title, .row-sub, .row-sub2 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row-title { font-size: 16px; font-weight: 600; }
+.row-title-sub { font-weight: 400; color: var(--ink-2); }
+.row-sub { font-size: 14px; color: var(--ink-2); }
+.row-sub2 { font-size: 13px; color: var(--ink-3); }
+.row-meta { font-size: 13px; color: var(--ink-3); white-space: nowrap; }
+.row-end { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; flex: none; }
+.row-value { font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.chev { width: 16px; height: 16px; color: var(--ink-3); stroke-width: 2.4; }
+.check { width: 20px; height: 20px; color: var(--rose); stroke-width: 2.4; }
+
+.avatar { width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; flex: none; font: 600 17px var(--font-display); }
+.avatar.sm { width: 32px; height: 32px; font-size: 14px; }
+.avatar.lg { width: 92px; height: 92px; font-size: 40px; }
+.sp-cachorro { background: var(--sp-dog-bg); color: var(--sp-dog); }
+.sp-gato { background: var(--sp-cat-bg); color: var(--sp-cat); }
+.sp-ave { background: var(--sp-bird-bg); color: var(--sp-bird); }
+.sp-roedor { background: var(--sp-rod-bg); color: var(--sp-rod); }
+.sp-reptil { background: var(--sp-rep-bg); color: var(--sp-rep); }
+.sp-outro { background: var(--sp-etc-bg); color: var(--sp-etc); }
+
+.tipo-badge { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; flex: none; }
+.tipo-badge .ic { width: 21px; height: 21px; }
+.tipo-badge.lg { width: 68px; height: 68px; border-radius: 20px; }
+.tipo-badge.lg .ic { width: 34px; height: 34px; stroke-width: 1.6; }
+.tp-banho { background: var(--tp-banho-bg); color: var(--tp-banho); }
+.tp-tosa { background: var(--tp-tosa-bg); color: var(--tp-tosa); }
+.tp-consulta { background: var(--tp-consulta-bg); color: var(--tp-consulta); }
+.tp-vacinacao { background: var(--tp-vacina-bg); color: var(--tp-vacina); }
+.tp-hospedagem { background: var(--tp-hosp-bg); color: var(--tp-hosp); }
+.tp-outro { background: var(--tp-outro-bg); color: var(--tp-outro); }
+
+.pill { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; font-size: 12px; font-weight: 600; white-space: nowrap; }
+.pill::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.st-agendado { color: var(--info); background: var(--info-soft); }
+.st-em_andamento { color: var(--warn); background: var(--warn-soft); }
+.st-concluido { color: var(--ok); background: var(--ok-soft); }
+
+/* Início */
+.stats { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.stat { display: flex; flex-direction: column; gap: 10px; padding: 14px; border-radius: 20px; background: var(--surface); box-shadow: var(--shadow); text-align: left; transition: transform .12s; }
+.stat:active { transform: scale(.98); }
+.stat-top { display: flex; justify-content: space-between; align-items: center; }
+.stat-icon { width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; }
+.stat-icon .ic { width: 19px; height: 19px; }
+.tone-rose { background: var(--blush); color: var(--rose); }
+.tone-info { background: var(--info-soft); color: var(--info); }
+.tone-warn { background: var(--warn-soft); color: var(--warn); }
+.tone-ok { background: var(--ok-soft); color: var(--ok); }
+.stat-num { font: 700 30px/1 var(--font-num); font-variant-numeric: tabular-nums; }
+.stat-label { font-size: 14px; font-weight: 500; color: var(--ink-2); }
+.revenue { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; padding: 16px; border-radius: 20px; background: linear-gradient(140deg, var(--blush) 0%, var(--surface) 85%); border: 1px solid var(--blush-line); }
+.revenue-title { grid-column: 1 / -1; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--rose); }
+.rev-item { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.rev-item + .rev-item { border-left: 1px solid var(--blush-line); padding-left: 14px; }
+.rev-value { font: 700 21px/1.2 var(--font-num); font-variant-numeric: tabular-nums; }
+.rev-label { font-size: 13px; color: var(--ink-2); }
+.quick { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.section { display: flex; flex-direction: column; gap: 8px; }
+.section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 0 4px; }
+.section-title { margin: 0; font: 600 20px var(--font-display); letter-spacing: -.01em; }
+.section-count { font-size: 15px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.list-caption { margin: 0; padding: 0 4px; font-size: 13px; color: var(--ink-2); }
+.empty-card { padding: 22px 16px; border-radius: 18px; background: var(--surface); color: var(--ink-2); text-align: center; font-size: 15px; }
+
+/* Botões */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 48px; padding: 0 18px; border-radius: 14px; font-size: 16px; font-weight: 600; transition: transform .12s, background .15s; }
+.btn:active:not(:disabled) { transform: scale(.98); }
+.btn .ic { width: 19px; height: 19px; stroke-width: 2.1; }
+.btn-primary { background: var(--rose); color: var(--on-rose); }
+.btn-primary:hover:not(:disabled) { background: var(--rose-press); }
+.btn-primary:disabled { opacity: .75; cursor: progress; }
+.btn-tinted { background: var(--blush); color: var(--rose); }
+.btn-tinted:hover { background: var(--blush-line); }
+.btn-danger { background: var(--surface); color: var(--danger); box-shadow: var(--shadow); }
+.btn-danger:hover { background: var(--danger-soft); }
+.btn-block { width: 100%; }
+.btn-sm { height: 40px; padding: 0 14px; border-radius: 12px; font-size: 15px; }
+.link { color: var(--rose); font-size: 15px; font-weight: 500; }
+.spinner { width: 26px; height: 26px; border-radius: 50%; border: 2.5px solid var(--blush-line); border-top-color: var(--rose); animation: spin .8s linear infinite; flex: none; }
+.btn .spinner, .as-btn .spinner { width: 18px; height: 18px; }
+.btn-primary .spinner { border-color: var(--on-rose-dim); border-top-color: var(--on-rose); }
+
+/* Busca e filtros */
+.search { display: flex; align-items: center; gap: 8px; height: 40px; padding: 0 12px; border-radius: 12px; background: var(--fill); color: var(--ink-2); }
+.search:focus-within { box-shadow: 0 0 0 2px var(--blush-line); }
+.search .ic { width: 18px; height: 18px; }
+.search input { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; font: inherit; font-size: 16px; color: var(--ink); }
+.search input::placeholder { color: var(--ink-3); }
+.filters { display: flex; gap: 8px; overflow-x: auto; margin: 0 -16px; padding: 0 16px 2px; scrollbar-width: none; }
+.filters::-webkit-scrollbar { display: none; }
+.filter { flex: none; display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 14px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); font-size: 14px; font-weight: 500; }
+.filter .count { color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.filter.on { background: var(--rose); border-color: var(--rose); color: var(--on-rose); }
+.filter.on .count { color: var(--on-rose-dim); }
+
+/* Detalhes */
+.hero { display: flex; flex-direction: column; align-items: center; gap: 4px; padding-top: 6px; text-align: center; }
+.hero h2 { margin: 10px 0 0; font: 700 26px/1.15 var(--font-display); letter-spacing: -.02em; overflow-wrap: anywhere; }
+.hero p { margin: 0; color: var(--ink-2); font-size: 15px; }
+.hero-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; width: 100%; margin-top: 14px; }
+.hero-actions.single { grid-template-columns: 1fr; }
+.svc-hero { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 22px 18px 18px; border-radius: 22px; background: var(--surface); box-shadow: var(--shadow); text-align: center; }
+.svc-hero h2 { margin: 6px 0 0; font: 700 24px/1.15 var(--font-display); letter-spacing: -.02em; }
+.svc-value { margin-top: 6px; font: 700 34px/1.1 var(--font-num); font-variant-numeric: tabular-nums; }
+.svc-date { color: var(--ink-2); font-size: 15px; }
+.info-row { position: relative; display: flex; gap: 12px; align-items: flex-start; padding: 12px 16px; }
+.info-row + .info-row::before { content: ""; position: absolute; top: 0; left: 58px; right: 0; height: 1px; background: var(--line); }
+.info-icon { width: 30px; height: 30px; border-radius: 9px; background: var(--blush); color: var(--rose); display: grid; place-items: center; flex: none; }
+.info-icon .ic { width: 17px; height: 17px; }
+.info-text { min-width: 0; display: flex; flex-direction: column; }
+.info-label { font-size: 13px; color: var(--ink-2); }
+.info-value { font-size: 16px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.info-value.muted { color: var(--ink-3); }
+
+/* Formulários */
+.banner { display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 14px; background: var(--danger-soft); color: var(--danger); font-size: 14px; font-weight: 500; }
+.banner .ic { width: 20px; height: 20px; }
+.form-group { display: flex; flex-direction: column; gap: 8px; }
+.form-group-title { margin: 0; padding: 0 4px; font-size: 12px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--ink-2); }
+.form-card { background: var(--surface); border-radius: 18px; overflow: hidden; }
+.field { position: relative; display: flex; flex-direction: column; gap: 6px; padding: 12px 16px; transition: background .15s; }
+.field + .field::before { content: ""; position: absolute; top: 0; left: 16px; right: 0; height: 1px; background: var(--line); }
+.field:focus-within { background: var(--focus-bg); }
+.field-label { font-size: 13px; font-weight: 600; color: var(--ink-2); }
+.field:focus-within .field-label { color: var(--rose); }
+.field.invalid .field-label { color: var(--danger); }
+.req { color: var(--rose); }
+.field-control { display: flex; align-items: center; gap: 6px; }
+.field input, .field textarea { flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; padding: 2px 0; font: inherit; font-size: 17px; color: var(--ink); resize: none; }
+.field textarea { min-height: 68px; line-height: 1.4; }
+.field input::placeholder, .field textarea::placeholder { color: var(--ink-3); }
+.affix { color: var(--ink-2); font-size: 16px; }
+.field-error { font-size: 13px; font-weight: 500; color: var(--danger); }
+.form-hint { margin: -8px 0 0; padding: 0 4px; font-size: 13px; color: var(--ink-2); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; align-items: center; height: 36px; padding: 0 14px; border-radius: 999px; background: var(--fill); border: 1.5px solid transparent; font-size: 15px; font-weight: 500; }
+.chip.on, .tile.on { background: var(--blush); border-color: var(--rose); color: var(--rose); font-weight: 600; }
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.tile { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; min-height: 74px; padding: 10px 4px; border-radius: 14px; background: var(--fill); border: 1.5px solid transparent; font-size: 13px; font-weight: 500; line-height: 1.2; text-align: center; }
+.segmented { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; padding: 3px; border-radius: 11px; background: var(--fill); }
+.seg { height: 34px; border-radius: 8px; font-size: 14px; font-weight: 500; text-align: center; }
+.seg.on { background: var(--surface); box-shadow: 0 1px 3px rgba(60, 20, 40, .16); font-weight: 600; }
+.select { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; font-size: 17px; text-align: left; }
+.select .placeholder { flex: 1; color: var(--ink-3); }
+.sel-name { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.sel-name b { font-weight: 600; font-size: 16px; }
+.sel-name small { color: var(--ink-2); font-size: 13px; }
+.screen-footer { flex: none; padding: 12px 16px 30px; background: var(--canvas); border-top: 1px solid var(--line); }
+
+/* Estados */
+.state { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 56px 20px; text-align: center; color: var(--ink-2); }
+.state h3 { margin: 6px 0 0; color: var(--ink); font: 600 17px var(--font-display); }
+.state p { margin: 0; max-width: 270px; font-size: 15px; }
+.state .btn { margin-top: 10px; }
+.state-icon { width: 58px; height: 58px; border-radius: 50%; display: grid; place-items: center; background: var(--blush); color: var(--rose); }
+.state-icon .ic { width: 28px; height: 28px; }
+.state-error .state-icon { background: var(--danger-soft); color: var(--danger); }
+
+/* Barra de abas */
+.tabbar { flex: none; display: grid; grid-template-columns: repeat(3, 1fr); padding: 6px 12px 26px; background: var(--bar); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-top: 1px solid var(--line); }
+.tab { display: flex; flex-direction: column; align-items: center; gap: 2px; min-height: 46px; padding-top: 4px; font-size: 11px; font-weight: 500; color: var(--ink-3); }
+.tab .ic { width: 26px; height: 26px; }
+.tab.on { color: var(--rose); }
+.tab.on .ic { fill: var(--blush-line); }
+
+/* Folhas (confirmação e seleção) */
+.sheet-layer { position: absolute; inset: 0; z-index: 60; pointer-events: none; }
+.sheet-layer.has { pointer-events: auto; }
+.scrim { position: absolute; inset: 0; background: var(--scrim); opacity: 0; transition: opacity .24s; }
+.sheet-layer.open .scrim { opacity: 1; }
+.action-sheet { position: absolute; left: 10px; right: 10px; bottom: 30px; display: flex; flex-direction: column; gap: 8px; transform: translateY(120%); transition: transform .3s cubic-bezier(.2, .8, .2, 1); }
+.picker-sheet { position: absolute; left: 0; right: 0; bottom: 0; max-height: 74%; display: flex; flex-direction: column; padding-bottom: 28px; border-radius: 24px 24px 0 0; background: var(--canvas); transform: translateY(105%); transition: transform .3s cubic-bezier(.2, .8, .2, 1); }
+.sheet-layer.open .action-sheet, .sheet-layer.open .picker-sheet { transform: none; }
+.as-group { background: var(--sheet); border-radius: 16px; overflow: hidden; }
+.as-head { padding: 16px 20px 14px; text-align: center; border-bottom: 1px solid var(--line); }
+.as-title { margin: 0; font-size: 16px; font-weight: 600; }
+.as-msg { margin: 4px 0 0; font-size: 13.5px; color: var(--ink-2); }
+.as-btn { width: 100%; height: 56px; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 18px; text-align: center; }
+.as-btn:hover { background: var(--row-press); }
+.as-danger { color: var(--danger); font-weight: 500; }
+.as-danger .spinner { border-color: var(--danger-soft); border-top-color: var(--danger); }
+.as-cancel { background: var(--surface); border-radius: 16px; color: var(--rose); font-weight: 600; }
+.grabber { width: 36px; height: 5px; margin: 8px auto 4px; border-radius: 3px; background: var(--fill-strong); }
+.ps-head { display: flex; justify-content: space-between; align-items: center; padding: 6px 16px 10px; }
+.ps-head h3 { margin: 0; font: 600 17px var(--font-display); }
+.ps-list { margin: 0 16px; overflow-y: auto; border-radius: 16px; background: var(--surface); }
+
+/* Aviso rápido */
+.toast {
+  position: absolute; top: 60px; left: 50%; z-index: 90; max-width: calc(100% - 32px);
+  display: flex; align-items: center; gap: 8px; padding: 10px 16px 10px 12px; border-radius: 999px;
+  background: var(--surface); color: var(--ink); font-size: 14.5px; font-weight: 600;
+  box-shadow: 0 12px 30px -10px rgba(60, 20, 40, .4), 0 0 0 1px var(--line);
+  opacity: 0; transform: translate(-50%, -16px); pointer-events: none;
+  transition: opacity .2s, transform .3s cubic-bezier(.2, .8, .2, 1);
+}
+.toast.show { opacity: 1; transform: translate(-50%, 0); }
+.toast .ic { width: 20px; height: 20px; color: var(--ok); stroke-width: 2.3; }
+.toast.error .ic { color: var(--danger); }
+
+@media (max-width: 820px) {
+  .stage { flex-direction: column; align-items: stretch; gap: 18px; padding-block: 16px 24px; }
+  .panel { width: auto; padding-top: 0; gap: 12px; }
+  .panel h1 { font-size: 22px; }
+  .lede, .tips-title, .tips { display: none; }
+  .phone { width: 100%; height: 84vh; min-height: 560px; max-height: 860px; margin: 0; border-radius: 28px; box-shadow: 0 0 0 1px var(--line), 0 24px 48px -28px rgba(70, 20, 45, .45); }
+  .island, .statusbar, .phone::after { display: none; }
+  .nav { padding-top: 14px; }
+  .navbar { padding-top: 8px; }
+  .tabbar { padding-bottom: 10px; }
+  .screen-footer { padding-bottom: 16px; }
+  .toast { top: 14px; }
+  .action-sheet { bottom: 12px; }
+  .picker-sheet { padding-bottom: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
+</style>
+
+<div class="stage">
+  <aside class="panel">
+    <div class="brand"><span class="brand-mark" id="brand-mark"></span><span>PetCare</span></div>
+    <h1>Pré-visualização interativa</h1>
+    <p class="lede">Use o app como no celular: navegue pelas abas, abra os detalhes e teste o cadastro, a edição e a exclusão de animais e serviços.</p>
+    <div class="notice">
+      <span class="notice-tag">Dados de exemplo</span>
+      <p>Os animais e serviços desta página são fictícios e ficam só na memória do navegador. O app real usa a API REST (Node.js + Express) com o banco MySQL.</p>
+    </div>
+    <div class="controls">
+      <button class="panel-btn" id="btn-reset" type="button"></button>
+      <label class="switch-row" for="sw-fail">
+        <span><strong>Simular falha da API</strong><small>Veja como o app trata erros de conexão.</small></span>
+        <input type="checkbox" id="sw-fail" role="switch">
+      </label>
+    </div>
+    <p class="tips-title">Experimente</p>
+    <ul class="tips">
+      <li>Toque nos cartões do resumo para abrir a lista filtrada.</li>
+      <li>Salve um cadastro com campos vazios para ver a validação.</li>
+      <li>Exclua um animal com serviços: o histórico dele sai junto.</li>
+    </ul>
+  </aside>
+
+  <div class="device">
+    <div class="phone" id="phone">
+      <div class="island"></div>
+      <div class="statusbar" aria-hidden="true">
+        <span>9:41</span>
+        <span class="sb-icons">
+          <svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg>
+          <svg width="16" height="12" viewBox="0 0 16 12"><path d="M8 2.2c2.4 0 4.6.9 6.3 2.5l1.1-1.2A10.6 10.6 0 0 0 8 .5 10.6 10.6 0 0 0 .6 3.5l1.1 1.2A9 9 0 0 1 8 2.2Zm0 3.3c1.5 0 2.9.6 4 1.5l1.1-1.2A7.6 7.6 0 0 0 8 3.9a7.6 7.6 0 0 0-5.1 1.9L4 7a6 6 0 0 1 4-1.5Zm0 3.3c.7 0 1.3.2 1.8.6L8 11.5 6.2 9.4c.5-.4 1.1-.6 1.8-.6Z"/></svg>
+          <svg width="27" height="12" viewBox="0 0 27 12"><rect x=".5" y=".5" width="23" height="11" rx="3.2" fill="none" stroke="currentColor" opacity=".4"/><rect x="2" y="2" width="20" height="8" rx="1.8"/><path d="M25 4v4c.8-.3 1.3-1 1.3-2S25.8 4.3 25 4Z" opacity=".45"/></svg>
+        </span>
+      </div>
+      <div class="app" id="app"></div>
+      <div class="sheet-layer" id="sheet-layer"></div>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+'use strict';
+
+/* =====================================================================
+   DADOS DE DEMONSTRAÇÃO — usados apenas nesta pré-visualização.
+   Tudo roda em memória no navegador e volta ao estado inicial ao
+   recarregar a página. A versão real do app (pasta mobile/) usa a
+   API REST em Node.js/Express (pasta backend/) e o banco MySQL.
+   ===================================================================== */
+const LATENCIA_DEMO = 380; // imita o tempo de resposta da API
+
+function seedDadosDeExemplo() {
+  const d = isoDaquiA;
+  return {
+    animais: [
+      { id: 1, nome: 'Thor', especie: 'Cachorro', raca: 'Golden Retriever', idade: 4, tutor_nome: 'Mariana Costa', telefone: '(11) 98765-4321', observacoes: 'Pele sensível: usar shampoo hipoalergênico.' },
+      { id: 2, nome: 'Mel', especie: 'Gato', raca: 'Siamês', idade: 2, tutor_nome: 'Rafael Lima', telefone: '(11) 99876-1234', observacoes: 'Fica agitada com o barulho do secador.' },
+      { id: 3, nome: 'Paçoca', especie: 'Cachorro', raca: 'Shih Tzu', idade: 9, tutor_nome: 'Beatriz Souza', telefone: '(21) 98123-4567', observacoes: 'Idoso, tem artrose. Manusear com cuidado.' },
+      { id: 4, nome: 'Kiwi', especie: 'Ave', raca: 'Calopsita', idade: 3, tutor_nome: 'Lucas Almeida', telefone: '(31) 99654-3210', observacoes: null },
+      { id: 5, nome: 'Nina', especie: 'Gato', raca: 'SRD', idade: 0, tutor_nome: 'Camila Rocha', telefone: '(11) 97777-8888', observacoes: 'Filhote resgatada. Primeira dose da antirrábica pendente.' },
+      { id: 6, nome: 'Bolota', especie: 'Roedor', raca: 'Porquinho-da-índia', idade: 1, tutor_nome: 'Pedro Henrique', telefone: '(11) 96543-2109', observacoes: null },
+    ],
+    servicos: [
+      { id: 1, animal_id: 1, tipo: 'vacinacao', data: d(-62), valor: 120, descricao: 'Vacina V10 (reforço anual).', status: 'concluido' },
+      { id: 2, animal_id: 1, tipo: 'banho', data: d(-12), valor: 75, descricao: 'Banho com shampoo hipoalergênico e secagem.', status: 'concluido' },
+      { id: 3, animal_id: 1, tipo: 'tosa', data: d(2), valor: 90, descricao: 'Tosa higiênica e corte de unhas.', status: 'agendado' },
+      { id: 4, animal_id: 2, tipo: 'consulta', data: d(0), valor: 180, descricao: 'Consulta de rotina e exame de sangue.', status: 'em_andamento' },
+      { id: 5, animal_id: 2, tipo: 'hospedagem', data: d(9), valor: 240, descricao: 'Hospedagem de 3 diárias durante viagem da família.', status: 'agendado' },
+      { id: 6, animal_id: 3, tipo: 'consulta', data: d(-7), valor: 200, descricao: 'Check-up geriátrico.', status: 'concluido' },
+      { id: 7, animal_id: 3, tipo: 'banho', data: d(1), valor: 65, descricao: 'Banho com hidratação.', status: 'agendado' },
+      { id: 8, animal_id: 4, tipo: 'outro', data: d(-3), valor: 45, descricao: 'Corte de unhas e lixamento do bico.', status: 'concluido' },
+      { id: 9, animal_id: 5, tipo: 'vacinacao', data: d(5), valor: 95, descricao: 'Primeira dose da antirrábica.', status: 'agendado' },
+    ],
+    proximoAnimalId: 7,
+    proximoServicoId: 10,
+  };
+}
+
+const demo = { db: seedDadosDeExemplo(), falhar: false };
+
+class ApiError extends Error {
+  constructor(message, status, campos) { super(message); this.status = status; this.campos = campos || null; }
+}
+
+const espera = (ms) => new Promise((r) => setTimeout(r, ms));
+const copia = (v) => JSON.parse(JSON.stringify(v));
+
+async function chamadaDemo(fn) {
+  await espera(LATENCIA_DEMO);
+  if (demo.falhar) throw new ApiError('Não foi possível conectar ao servidor. Verifique a conexão e tente novamente.', 0);
+  return copia(fn());
+}
+function exigir(dados, campos) {
+  const faltando = {};
+  campos.forEach((c) => { if (dados[c] === undefined || dados[c] === null || dados[c] === '') faltando[c] = 'Campo obrigatório.'; });
+  if (Object.keys(faltando).length) throw new ApiError('Preencha os campos obrigatórios.', 400, faltando);
+}
+function acharAnimal(id) {
+  const a = demo.db.animais.find((x) => x.id === id);
+  if (!a) throw new ApiError('Animal não encontrado.', 404);
+  return a;
+}
+function acharServico(id) {
+  const s = demo.db.servicos.find((x) => x.id === id);
+  if (!s) throw new ApiError('Serviço não encontrado.', 404);
+  return s;
+}
+function comAnimal(s) {
+  const a = demo.db.animais.find((x) => x.id === s.animal_id);
+  return { ...s, animal_nome: a.nome, animal_especie: a.especie, tutor_nome: a.tutor_nome, tutor_telefone: a.telefone };
+}
+const porDataDesc = (x, y) => y.data.localeCompare(x.data) || y.id - x.id;
+
+// Mesmas operações das rotas reais (backend/src/routes), aqui em memória.
+const demoApi = {
+  resumo: () => chamadaDemo(() => {
+    const { animais, servicos } = demo.db;
+    const hoje = hojeISO();
+    const conta = (st) => servicos.filter((s) => s.status === st).length;
+    const soma = (lista) => lista.reduce((t, s) => t + s.valor, 0);
+    return {
+      total_animais: animais.length,
+      agendados: conta('agendado'),
+      em_andamento: conta('em_andamento'),
+      concluidos: conta('concluido'),
+      receita_concluida: soma(servicos.filter((s) => s.status === 'concluido')),
+      receita_prevista: soma(servicos.filter((s) => s.status !== 'concluido')),
+      proximos: servicos
+        .filter((s) => s.status === 'agendado' && s.data >= hoje)
+        .sort((x, y) => x.data.localeCompare(y.data) || x.id - y.id)
+        .slice(0, 5)
+        .map(comAnimal),
+    };
+  }),
+  listarAnimais: () => chamadaDemo(() => demo.db.animais
+    .map((a) => ({ ...a, total_servicos: demo.db.servicos.filter((s) => s.animal_id === a.id).length }))
+    .sort((x, y) => x.nome.localeCompare(y.nome, 'pt-BR'))),
+  buscarAnimal: (id) => chamadaDemo(() => ({
+    ...acharAnimal(id),
+    servicos: demo.db.servicos.filter((s) => s.animal_id === id).sort(porDataDesc),
+  })),
+  criarAnimal: (dados) => chamadaDemo(() => {
+    exigir(dados, ['nome', 'especie', 'tutor_nome', 'telefone']);
+    const animal = { id: demo.db.proximoAnimalId++, ...dados };
+    demo.db.animais.push(animal);
+    return animal;
+  }),
+  atualizarAnimal: (id, dados) => chamadaDemo(() => {
+    exigir(dados, ['nome', 'especie', 'tutor_nome', 'telefone']);
+    return Object.assign(acharAnimal(id), dados);
+  }),
+  excluirAnimal: (id) => chamadaDemo(() => {
+    acharAnimal(id);
+    const antes = demo.db.servicos.length;
+    // Remove junto os serviços do animal, como a transação da API real (sem registros órfãos).
+    demo.db.servicos = demo.db.servicos.filter((s) => s.animal_id !== id);
+    demo.db.animais = demo.db.animais.filter((a) => a.id !== id);
+    return { mensagem: 'Animal excluído.', servicos_removidos: antes - demo.db.servicos.length };
+  }),
+  listarServicos: () => chamadaDemo(() => demo.db.servicos.slice().sort(porDataDesc).map(comAnimal)),
+  buscarServico: (id) => chamadaDemo(() => comAnimal(acharServico(id))),
+  criarServico: (dados) => chamadaDemo(() => {
+    exigir(dados, ['animal_id', 'tipo', 'data', 'valor', 'status']);
+    acharAnimal(dados.animal_id);
+    const servico = { id: demo.db.proximoServicoId++, ...dados };
+    demo.db.servicos.push(servico);
+    return comAnimal(servico);
+  }),
+  atualizarServico: (id, dados) => chamadaDemo(() => {
+    exigir(dados, ['animal_id', 'tipo', 'data', 'valor', 'status']);
+    acharAnimal(dados.animal_id);
+    return comAnimal(Object.assign(acharServico(id), dados));
+  }),
+  excluirServico: (id) => chamadaDemo(() => {
+    acharServico(id);
+    demo.db.servicos = demo.db.servicos.filter((s) => s.id !== id);
+    return { mensagem: 'Serviço excluído.' };
+  }),
+};
+/* ======================= fim dos dados de demonstração ======================= */
+
+
+/* ---------- Constantes (iguais a mobile/src/constants.js) ---------- */
+const TIPOS = [
+  { value: 'banho', label: 'Banho' },
+  { value: 'tosa', label: 'Tosa' },
+  { value: 'consulta', label: 'Consulta veterinária', short: 'Consulta' },
+  { value: 'vacinacao', label: 'Vacinação' },
+  { value: 'hospedagem', label: 'Hospedagem' },
+  { value: 'outro', label: 'Outro' },
+];
+const STATUS = [
+  { value: 'agendado', label: 'Agendado' },
+  { value: 'em_andamento', label: 'Em andamento' },
+  { value: 'concluido', label: 'Concluído' },
+];
+const ESPECIES = ['Cachorro', 'Gato', 'Ave', 'Roedor', 'Réptil', 'Outro'];
+const TAB_TITLES = { home: 'Início', animals: 'Animais', services: 'Serviços' };
+
+const ICONS = {
+  home: '<path d="M3.5 10.2 12 3.5l8.5 6.7"/><path d="M5.5 9v10.5a1 1 0 0 0 1 1H10v-6h4v6h3.5a1 1 0 0 0 1-1V9"/>',
+  paw: '<ellipse cx="6.2" cy="10.6" rx="1.9" ry="2.3"/><ellipse cx="9.8" cy="6" rx="1.9" ry="2.4"/><ellipse cx="14.2" cy="6" rx="1.9" ry="2.4"/><ellipse cx="17.8" cy="10.6" rx="1.9" ry="2.3"/><path d="M12 11.5c-2.9 0-5.6 4-5.6 6.4 0 1.5 1.1 2.4 2.4 2.4 1.3 0 2-.7 3.2-.7s1.9.7 3.2.7c1.3 0 2.4-.9 2.4-2.4 0-2.4-2.7-6.4-5.6-6.4Z"/>',
+  calendar: '<rect x="3.5" y="5" width="17" height="15.5" rx="3"/><path d="M3.5 10h17M8 3v4M16 3v4"/>',
+  clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/>',
+  'check-circle': '<circle cx="12" cy="12" r="8.5"/><path d="m8.5 12.2 2.4 2.4 4.6-4.8"/>',
+  plus: '<path d="M12 5v14M5 12h14"/>',
+  'chevron-left': '<path d="m15 5-7 7 7 7"/>',
+  'chevron-right': '<path d="m9 5 7 7-7 7"/>',
+  'chevron-down': '<path d="m6 9 6 6 6-6"/>',
+  search: '<circle cx="11" cy="11" r="6.5"/><path d="m20 20-4.3-4.3"/>',
+  banho: '<path d="M12 3.5s6 6.4 6 10.6a6 6 0 0 1-12 0C6 9.9 12 3.5 12 3.5Z"/><path d="M9.2 14.5a2.9 2.9 0 0 0 2.6 2.7"/>',
+  tosa: '<circle cx="6" cy="6.5" r="2.6"/><circle cx="6" cy="17.5" r="2.6"/><path d="M8.3 7.9 20 17.5M8.3 16.1 20 6.5"/>',
+  consulta: '<rect x="3" y="7" width="18" height="13" rx="3"/><path d="M9 7V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V7M12 10.5v6M9 13.5h6"/>',
+  vacinacao: '<path d="M12 3 5 6v5.5c0 4.4 3 8 7 9.5 4-1.5 7-5.1 7-9.5V6l-7-3Z"/><path d="m9 12 2.2 2.2 4-4.2"/>',
+  hospedagem: '<path d="M3 19V6M3 15h18v4M21 15v-3a3 3 0 0 0-3-3h-7v6"/><circle cx="7" cy="11.5" r="1.8"/>',
+  outro: '<circle cx="12" cy="12" r="8.5"/><path d="M8 12h.01M12 12h.01M16 12h.01" stroke-width="2.6"/>',
+  user: '<circle cx="12" cy="8" r="4"/><path d="M4.5 20.5a7.5 7.5 0 0 1 15 0"/>',
+  phone: '<path d="M5 4h3.5L10 8.5 8 10a12 12 0 0 0 6 6l1.5-2 4.5 1.5V19a1.5 1.5 0 0 1-1.5 1.5A15.5 15.5 0 0 1 3.5 5.5 1.5 1.5 0 0 1 5 4Z"/>',
+  note: '<path d="M6 3.5h8.5L19 8v11.5a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1v-15a1 1 0 0 1 1-1Z"/><path d="M14 3.5V8h5M8.5 12.5h7M8.5 16h5"/>',
+  pencil: '<path d="M4 20h4L19 9l-4-4L4 16v4Z"/><path d="m13.5 6.5 4 4"/>',
+  trash: '<path d="M4 7h16M9 7V4.5h6V7M6.5 7l1 13h9l1-13M10 11v5.5M14 11v5.5"/>',
+  check: '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
+  alert: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.8v4.7M12 16h.01"/>',
+  refresh: '<path d="M4.5 12a7.5 7.5 0 0 1 12.9-5.2L20 9.5M20 4.5v5h-5M19.5 12a7.5 7.5 0 0 1-12.9 5.2L4 14.5M4 19.5v-5h5"/>',
+};
+
+/* ---------- Utilitários (equivalentes a mobile/src/utils) ---------- */
+const $ = (sel) => document.querySelector(sel);
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const icon = (name, cls = '') => `<svg class="ic ${cls}" viewBox="0 0 24 24" aria-hidden="true">${ICONS[name] || ''}</svg>`;
+const MESES = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'set', 'out', 'nov', 'dez'];
+const MESES_LONGOS = ['janeiro', 'fevereiro', 'março', 'abril', 'maio', 'junho', 'julho', 'agosto', 'setembro', 'outubro', 'novembro', 'dezembro'];
+const DIAS = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
+
+function toISO(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+function hojeISO() { return toISO(new Date()); }
+function isoDaquiA(dias) { const d = new Date(); d.setDate(d.getDate() + dias); return toISO(d); }
+function parseISO(iso) { const [y, m, d] = iso.split('-').map(Number); return new Date(y, m - 1, d); }
+function capitalize(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
+function formatDate(iso) { const d = parseISO(iso); return `${d.getDate()} ${MESES[d.getMonth()]} ${d.getFullYear()}`; }
+function formatDateLong(iso) { const d = parseISO(iso); return `${DIAS[d.getDay()]}, ${d.getDate()} de ${MESES_LONGOS[d.getMonth()]} de ${d.getFullYear()}`; }
+function formatToday() { const d = new Date(); return capitalize(`${DIAS[d.getDay()]}, ${d.getDate()} de ${MESES_LONGOS[d.getMonth()]}`); }
+function relativeDay(iso) {
+  const diff = Math.round((parseISO(iso) - parseISO(hojeISO())) / 86400000);
+  if (diff === 0) return 'Hoje';
+  if (diff === 1) return 'Amanhã';
+  if (diff === -1) return 'Ontem';
+  return formatDate(iso);
+}
+function formatMoney(v) {
+  const [int, dec] = (Number(v) || 0).toFixed(2).split('.');
+  return `R$ ${int.replace(/\B(?=(\d{3})+(?!\d))/g, '.')},${dec}`;
+}
+function formatAge(idade) {
+  if (idade === null || idade === undefined || idade === '') return '';
+  const n = Number(idade);
+  if (n === 0) return 'menos de 1 ano';
+  return n === 1 ? '1 ano' : `${n} anos`;
+}
+function maskPhone(v) {
+  const d = v.replace(/\D/g, '').slice(0, 11);
+  if (d.length <= 2) return d.length ? `(${d}` : '';
+  if (d.length <= 6) return `(${d.slice(0, 2)}) ${d.slice(2)}`;
+  if (d.length <= 10) return `(${d.slice(0, 2)}) ${d.slice(2, 6)}-${d.slice(6)}`;
+  return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
+}
+function maskDate(v) {
+  const d = v.replace(/\D/g, '').slice(0, 8);
+  if (d.length <= 2) return d;
+  if (d.length <= 4) return `${d.slice(0, 2)}/${d.slice(2)}`;
+  return `${d.slice(0, 2)}/${d.slice(2, 4)}/${d.slice(4)}`;
+}
+function maskMoney(v) {
+  const [int, ...rest] = v.replace(/\./g, ',').replace(/[^\d,]/g, '').split(',');
+  return rest.length ? `${int},${rest.join('').slice(0, 2)}` : int;
+}
+function brToISO(br) {
+  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(br || '');
+  if (!m) return null;
+  const [, dd, mm, yyyy] = m;
+  const d = new Date(+yyyy, +mm - 1, +dd);
+  if (d.getFullYear() !== +yyyy || d.getMonth() !== +mm - 1 || d.getDate() !== +dd) return null;
+  return `${yyyy}-${mm}-${dd}`;
+}
+function isoToBR(iso) { const [y, m, d] = iso.split('-'); return `${d}/${m}/${y}`; }
+function parseMoney(v) {
+  const s = String(v ?? '').trim();
+  if (!/^\d+(,\d{1,2})?$/.test(s)) return NaN;
+  return Number(s.replace(',', '.'));
+}
+function moneyToInput(v) { return Number(v).toFixed(2).replace('.', ','); }
+function especieKey(especie) {
+  const k = String(especie || '').normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  return ['cachorro', 'gato', 'ave', 'roedor', 'reptil'].includes(k) ? k : 'outro';
+}
+const tipoInfo = (v) => TIPOS.find((t) => t.value === v) || TIPOS[TIPOS.length - 1];
+const statusLabel = (v) => (STATUS.find((s) => s.value === v) || {}).label || v;
+
+/* ---------- Validação (igual a mobile/src/utils/validation.js) ---------- */
+function validarAnimal(f) {
+  const e = {};
+  if (!f.nome.trim()) e.nome = 'Informe o nome do animal.';
+  if (!f.especie) e.especie = 'Escolha a espécie.';
+  if (f.idade !== '' && Number(f.idade) > 40) e.idade = 'Use um número entre 0 e 40.';
+  if (!f.tutor_nome.trim()) e.tutor_nome = 'Informe o nome do tutor.';
+  const tel = f.telefone.replace(/\D/g, '');
+  if (!tel) e.telefone = 'Informe o telefone do tutor.';
+  else if (tel.length < 10) e.telefone = 'Inclua o DDD, como em (11) 98765-4321.';
+  return e;
+}
+function validarServico(f) {
+  const e = {};
+  if (!f.animal_id) e.animal_id = 'Selecione o animal atendido.';
+  if (!f.tipo) e.tipo = 'Escolha o tipo de serviço.';
+  if (!f.data) e.data = 'Informe a data.';
+  else if (!brToISO(f.data)) e.data = 'Use uma data válida no formato DD/MM/AAAA.';
+  if (!f.valor) e.valor = 'Informe o valor.';
+  else if (Number.isNaN(parseMoney(f.valor))) e.valor = 'Use um valor válido, como 80,00.';
+  if (!f.status) e.status = 'Escolha o status.';
+  return e;
+}
+const animalPayload = (f) => ({
+  nome: f.nome.trim(),
+  especie: f.especie,
+  raca: f.raca.trim() || null,
+  idade: f.idade === '' ? null : Number(f.idade),
+  tutor_nome: f.tutor_nome.trim(),
+  telefone: f.telefone.trim(),
+  observacoes: f.observacoes.trim() || null,
+});
+const servicoPayload = (f) => ({
+  animal_id: Number(f.animal_id),
+  tipo: f.tipo,
+  data: brToISO(f.data),
+  valor: parseMoney(f.valor),
+  status: f.status,
+  descricao: f.descricao.trim() || null,
+});
+
+/* ---------- Componentes ---------- */
+function avatar(nome, especie, size = '') {
+  const letra = String(nome || '?').trim().charAt(0).toUpperCase();
+  return `<span class="avatar sp-${especieKey(especie)} ${size}" aria-hidden="true">${esc(letra)}</span>`;
+}
+const tipoBadge = (tipo, size = '') => `<span class="tipo-badge tp-${tipo} ${size}" aria-hidden="true">${icon(tipo)}</span>`;
+const statusPill = (st) => `<span class="pill st-${st}">${statusLabel(st)}</span>`;
+const spinner = () => '<span class="spinner" aria-hidden="true"></span>';
+
+function animalRow(a) {
+  const n = a.total_servicos;
+  return `<button class="row row-btn" data-action="open-animal" data-id="${a.id}">
+    ${avatar(a.nome, a.especie)}
+    <span class="row-main">
+      <span class="row-title">${esc(a.nome)}</span>
+      <span class="row-sub">${esc([a.especie, a.raca].filter(Boolean).join(' · '))}</span>
+      <span class="row-sub2">Tutor: ${esc(a.tutor_nome)}</span>
+    </span>
+    <span class="row-meta">${n} ${n === 1 ? 'serviço' : 'serviços'}</span>
+    ${icon('chevron-right', 'chev')}
+  </button>`;
+}
+function serviceRow(s, showAnimal = true) {
+  const t = tipoInfo(s.tipo);
+  return `<button class="row row-btn" data-action="open-service" data-id="${s.id}">
+    ${tipoBadge(s.tipo)}
+    <span class="row-main">
+      <span class="row-title">${esc(t.short || t.label)}${showAnimal ? ` <span class="row-title-sub">· ${esc(s.animal_nome)}</span>` : ''}</span>
+      <span class="row-sub">${relativeDay(s.data)}</span>
+    </span>
+    <span class="row-end"><span class="row-value">${formatMoney(s.valor)}</span>${statusPill(s.status)}</span>
+    ${icon('chevron-right', 'chev')}
+  </button>`;
+}
+function infoRow(ic, label, value, muted = false) {
+  return `<div class="info-row"><span class="info-icon">${icon(ic)}</span>
+    <span class="info-text"><span class="info-label">${label}</span><span class="info-value${muted ? ' muted' : ''}">${esc(value)}</span></span></div>`;
+}
+const loadingState = () => `<div class="state" role="status">${spinner()}<p>Carregando…</p></div>`;
+const errorState = (msg) => `<div class="state state-error" role="alert"><span class="state-icon">${icon('alert')}</span>
+  <h3>Não foi possível carregar</h3><p>${esc(msg)}</p>
+  <button class="btn btn-tinted btn-sm" data-action="retry">${icon('refresh')}Tentar novamente</button></div>`;
+const emptyState = (ic, title, text, action = '') => `<div class="state"><span class="state-icon">${icon(ic)}</span>
+  <h3>${title}</h3><p>${text}</p>${action}</div>`;
+
+function field({ name, label, required, value, placeholder = '', inputmode = 'text', error, textarea, prefix, suffix, maxlength }) {
+  const attrs = `id="f-${name}" data-field="${name}" placeholder="${esc(placeholder)}"${maxlength ? ` maxlength="${maxlength}"` : ''}`;
+  const control = textarea
+    ? `<textarea ${attrs} rows="3">${esc(value)}</textarea>`
+    : `<input ${attrs} type="text" inputmode="${inputmode}" value="${esc(value)}" autocomplete="off">`;
+  return `<label class="field${error ? ' invalid' : ''}" data-field-wrap="${name}" for="f-${name}">
+    <span class="field-label">${label}${required ? ' <span class="req">*</span>' : ''}</span>
+    <span class="field-control">${prefix ? `<span class="affix">${prefix}</span>` : ''}${control}${suffix ? `<span class="affix">${suffix}</span>` : ''}</span>
+    ${error ? `<span class="field-error">${esc(error)}</span>` : ''}
+  </label>`;
+}
+function choiceField({ name, label, required, value, options, error, kind }) {
+  const listCls = kind === 'tile' ? 'tiles' : kind === 'seg' ? 'segmented' : 'chips';
+  const itemCls = kind === 'tile' ? 'tile' : kind === 'seg' ? 'seg' : 'chip';
+  return `<div class="field${error ? ' invalid' : ''}" data-field-wrap="${name}">
+    <span class="field-label" id="lbl-${name}">${label}${required ? ' <span class="req">*</span>' : ''}</span>
+    <div class="${listCls}" role="radiogroup" aria-labelledby="lbl-${name}">
+      ${options.map((o) => `<button type="button" role="radio" id="opt-${name}-${esc(o.value)}" aria-checked="${o.value === value}"
+        class="${itemCls}${o.value === value ? ' on' : ''}" data-action="pick" data-name="${name}" data-value="${esc(o.value)}">${o.icon ? icon(o.icon) : ''}${esc(o.label)}</button>`).join('')}
+    </div>
+    ${error ? `<span class="field-error">${esc(error)}</span>` : ''}
+  </div>`;
+}
+const formBanner = (msg) => `<div class="banner" role="alert">${icon('alert')}<span>${esc(msg)}</span></div>`;
+
+/* ---------- Navegação (espelha o Stack + Bottom Tabs do React Navigation) ---------- */
+let keySeq = 0;
+let pendingAnim = null;
+const makeRoute = (name, params = {}) => ({ key: `${name}-${++keySeq}`, name, params, status: 'loading', data: null, error: null, scroll: 0 });
+const state = { tab: 'home', stack: [], roots: null, sheet: null };
+function resetNavigation() {
+  state.tab = 'home';
+  state.stack = [];
+  state.sheet = null;
+  state.roots = { home: makeRoute('Home'), animals: makeRoute('AnimalList'), services: makeRoute('ServiceList') };
+  state.roots.services.filter = 'todos';
+}
+const currentRoute = () => state.stack[state.stack.length - 1] || state.roots[state.tab];
+function findRoute(key) { return [...Object.values(state.roots), ...state.stack].find((r) => r.key === key); }
+
+function navigate(name, params = {}, modal = false) {
+  const route = makeRoute(name, params);
+  route.modal = modal;
+  state.stack.push(route);
+  pendingAnim = modal ? 'modal' : 'push';
+  load(route);
+}
+function goBack() {
+  const top = state.stack.pop();
+  pendingAnim = top && top.modal ? 'fade' : 'pop';
+  load(currentRoute(), true);
+}
+function popToTop() {
+  state.stack = [];
+  pendingAnim = 'pop';
+  load(currentRoute(), true);
+}
+function switchTab(tab) {
+  state.tab = tab;
+  state.stack = [];
+  pendingAnim = 'fade';
+  load(currentRoute(), true);
+}
+
+const LOADERS = {
+  Home: () => demoApi.resumo(),
+  AnimalList: () => demoApi.listarAnimais(),
+  ServiceList: () => demoApi.listarServicos(),
+  AnimalDetail: (p) => demoApi.buscarAnimal(p.id),
+  ServiceDetail: (p) => demoApi.buscarServico(p.id),
+  AnimalForm: (p) => (p.id ? demoApi.buscarAnimal(p.id) : null),
+  ServiceForm: async (p) => ({
+    animais: await demoApi.listarAnimais(),
+    servico: p.id ? await demoApi.buscarServico(p.id) : null,
+  }),
+};
+const FORM_INIT = {
+  AnimalForm(route) {
+    const a = route.data;
+    route.form = {
+      nome: a ? a.nome : '', especie: a ? a.especie : '', raca: (a && a.raca) || '',
+      idade: a && a.idade !== null ? String(a.idade) : '', tutor_nome: a ? a.tutor_nome : '',
+      telefone: a ? maskPhone(a.telefone) : '', observacoes: (a && a.observacoes) || '',
+    };
+    route.errors = {};
+  },
+  ServiceForm(route) {
+    const s = route.data.servico;
+    route.form = {
+      animal_id: s ? s.animal_id : (route.params.animalId || ''), tipo: s ? s.tipo : '',
+      data: isoToBR(s ? s.data : hojeISO()), valor: s ? moneyToInput(s.valor) : '',
+      status: s ? s.status : 'agendado', descricao: (s && s.descricao) || '',
+    };
+    route.errors = {};
+  },
+};
+
+// Carrega os dados da tela (como o useFocusEffect do app). silent mantém os dados atuais visíveis.
+async function load(route, silent = false) {
+  const token = (route.token = (route.token || 0) + 1);
+  let result;
+  try { result = LOADERS[route.name](route.params); } catch (err) { result = Promise.reject(err); }
+  if (!(result instanceof Promise)) {
+    route.data = result; route.status = 'ready'; route.error = null;
+    if (FORM_INIT[route.name] && !route.form) FORM_INIT[route.name](route);
+    if (currentRoute() === route) render();
+    return;
+  }
+  if (!silent || route.status !== 'ready') { route.status = 'loading'; route.error = null; }
+  if (currentRoute() === route) render();
+  try {
+    const data = await result;
+    if (token !== route.token) return;
+    route.data = data; route.status = 'ready'; route.error = null;
+    if (FORM_INIT[route.name] && !route.form) FORM_INIT[route.name](route);
+  } catch (err) {
+    if (token !== route.token) return;
+    route.status = 'error'; route.error = err.message;
+  }
+  if (currentRoute() === route) render();
+}
+
+/* ---------- Telas ---------- */
+function navLarge(title, { action = '', eyebrow = '' } = {}) {
+  return `<header class="nav">
+    <div class="nav-top">${eyebrow || '<span></span>'}${action}</div>
+    <h1 class="large-title">${title}</h1>
+  </header>`;
+}
+function backLabel() {
+  const prev = state.stack[state.stack.length - 2];
+  if (!prev) return TAB_TITLES[state.tab];
+  if (prev.name === 'AnimalDetail') return (prev.data && prev.data.nome) || 'Animal';
+  if (prev.name === 'ServiceDetail') return 'Serviço';
+  return 'Voltar';
+}
+function navBar(title, modal = false) {
+  const left = modal
+    ? '<button class="nav-text" data-action="back">Cancelar</button>'
+    : `<button class="nav-back" data-action="back" aria-label="Voltar para ${esc(backLabel())}">${icon('chevron-left')}<span>${esc(backLabel())}</span></button>`;
+  return `<header class="navbar">${left}<span class="navbar-title">${esc(title)}</span><span></span></header>`;
+}
+const plusButton = (action, label) => `<button class="round-btn" data-action="${action}" aria-label="${label}">${icon('plus')}</button>`;
+function guard(route) {
+  if (route.status === 'loading' && !route.data) return loadingState();
+  if (route.status === 'error') return errorState(route.error);
+  return null;
+}
+
+const SCREENS = {
+  Home(route) {
+    const nav = navLarge('PetCare', { eyebrow: `<span class="eyebrow">${formatToday()}</span>`, action: '<span class="demo-chip">Dados de exemplo</span>' });
+    const g = guard(route);
+    if (g) return { nav, body: g, tabbar: true };
+    const r = route.data;
+    const stat = (ic, num, label, tone, action, filter = '') => `<button class="stat" data-action="${action}"${filter ? ` data-filter="${filter}"` : ''}>
+      <span class="stat-top"><span class="stat-icon tone-${tone}">${icon(ic)}</span>${icon('chevron-right', 'chev')}</span>
+      <span class="stat-num">${num}</span><span class="stat-label">${label}</span></button>`;
+    const body = `
+      <section class="stats" aria-label="Resumo">
+        ${stat('paw', r.total_animais, 'Animais cadastrados', 'rose', 'goto-animals')}
+        ${stat('calendar', r.agendados, 'Agendados', 'info', 'goto-services', 'agendado')}
+        ${stat('clock', r.em_andamento, 'Em andamento', 'warn', 'goto-services', 'em_andamento')}
+        ${stat('check-circle', r.concluidos, 'Concluídos', 'ok', 'goto-services', 'concluido')}
+      </section>
+      <section class="revenue" aria-label="Faturamento">
+        <span class="revenue-title">Faturamento</span>
+        <div class="rev-item"><span class="rev-value">${formatMoney(r.receita_concluida)}</span><span class="rev-label">Recebido</span></div>
+        <div class="rev-item"><span class="rev-value">${formatMoney(r.receita_prevista)}</span><span class="rev-label">Previsto em aberto</span></div>
+      </section>
+      <section class="quick">
+        <button class="btn btn-primary" data-action="new-animal">${icon('plus')}Novo animal</button>
+        <button class="btn btn-tinted" data-action="new-service">${icon('plus')}Novo serviço</button>
+      </section>
+      <section class="section">
+        <div class="section-head"><h2 class="section-title">Próximos agendamentos</h2>
+          ${r.proximos.length ? '<button class="link" data-action="goto-services" data-filter="agendado">Ver todos</button>' : ''}</div>
+        ${r.proximos.length
+          ? `<div class="group">${r.proximos.map((s) => serviceRow(s)).join('')}</div>`
+          : '<div class="empty-card">Nenhum serviço agendado a partir de hoje.</div>'}
+      </section>`;
+    return { nav, body, tabbar: true };
+  },
+
+  AnimalList(route) {
+    const nav = navLarge('Animais', { action: plusButton('new-animal', 'Cadastrar animal') });
+    const g = guard(route);
+    if (g) return { nav, body: g, tabbar: true };
+    const body = `
+      <label class="search" for="animal-search">${icon('search')}
+        <input id="animal-search" type="search" placeholder="Buscar por nome, raça ou tutor" value="${esc(route.search || '')}" autocomplete="off">
+      </label>
+      <div id="animal-results" class="section">${animalResults(route)}</div>`;
+    return { nav, body, tabbar: true };
+  },
+
+  ServiceList(route) {
+    const nav = navLarge('Serviços', { action: plusButton('new-service', 'Cadastrar serviço') });
+    const g = guard(route);
+    if (g) return { nav, body: g, tabbar: true };
+    const todos = route.data;
+    const filtro = route.filter || 'todos';
+    const opcoes = [['todos', 'Todos'], ['agendado', 'Agendados'], ['em_andamento', 'Em andamento'], ['concluido', 'Concluídos']];
+    const conta = (v) => (v === 'todos' ? todos.length : todos.filter((s) => s.status === v).length);
+    const lista = filtro === 'todos' ? todos : todos.filter((s) => s.status === filtro);
+    let content;
+    if (!todos.length) {
+      content = emptyState('calendar', 'Nenhum serviço registrado', 'Cadastre banhos, tosas, consultas e outros atendimentos.',
+        `<button class="btn btn-primary btn-sm" data-action="new-service">${icon('plus')}Novo serviço</button>`);
+    } else if (!lista.length) {
+      content = `<div class="empty-card">Nenhum serviço com status “${esc(statusLabel(filtro))}”.</div>`;
+    } else {
+      content = `<div class="group">${lista.map((s) => serviceRow(s)).join('')}</div>`;
+    }
+    const body = `
+      <div class="filters" role="group" aria-label="Filtrar por status">
+        ${opcoes.map(([v, l]) => `<button class="filter${v === filtro ? ' on' : ''}" aria-pressed="${v === filtro}" data-action="filter" data-value="${v}">${l} <span class="count">${conta(v)}</span></button>`).join('')}
+      </div>
+      ${content}`;
+    return { nav, body, tabbar: true };
+  },
+
+  AnimalDetail(route) {
+    const a = route.data;
+    const nav = navBar(a ? a.nome : '');
+    const g = guard(route);
+    if (g) return { nav, body: g };
+    const n = a.servicos.length;
+    const body = `
+      <section class="hero">
+        ${avatar(a.nome, a.especie, 'lg')}
+        <h2>${esc(a.nome)}</h2>
+        <p>${esc([a.especie, a.raca, formatAge(a.idade)].filter(Boolean).join(' · '))}</p>
+        <div class="hero-actions">
+          <button class="btn btn-tinted btn-sm" data-action="edit-animal" data-id="${a.id}">${icon('pencil')}Editar</button>
+          <button class="btn btn-tinted btn-sm" data-action="new-service" data-animal="${a.id}">${icon('plus')}Novo serviço</button>
+        </div>
+      </section>
+      <section class="group" aria-label="Dados do tutor">
+        ${infoRow('user', 'Tutor', a.tutor_nome)}
+        ${infoRow('phone', 'Telefone', a.telefone)}
+        ${infoRow('note', 'Observações', a.observacoes || 'Nenhuma observação.', !a.observacoes)}
+      </section>
+      <section class="section">
+        <div class="section-head"><h2 class="section-title">Histórico de serviços</h2><span class="section-count">${n}</span></div>
+        ${n ? `<div class="group">${a.servicos.map((s) => serviceRow(s, false)).join('')}</div>`
+            : `<div class="empty-card">Nenhum serviço registrado para ${esc(a.nome)}.</div>`}
+      </section>
+      <button class="btn btn-danger btn-block" data-action="delete-animal">${icon('trash')}Excluir animal</button>`;
+    return { nav, body };
+  },
+
+  ServiceDetail(route) {
+    const nav = navBar('Serviço');
+    const g = guard(route);
+    if (g) return { nav, body: g };
+    const s = route.data;
+    const t = tipoInfo(s.tipo);
+    const body = `
+      <section class="svc-hero">
+        ${tipoBadge(s.tipo, 'lg')}
+        <h2>${t.label}</h2>
+        ${statusPill(s.status)}
+        <span class="svc-value">${formatMoney(s.valor)}</span>
+        <span class="svc-date">${capitalize(formatDateLong(s.data))}</span>
+        <div class="hero-actions single"><button class="btn btn-tinted btn-sm" data-action="edit-service" data-id="${s.id}">${icon('pencil')}Editar serviço</button></div>
+      </section>
+      <section class="section">
+        <div class="section-head"><h2 class="section-title">Animal</h2></div>
+        <div class="group">
+          <button class="row row-btn" data-action="open-animal" data-id="${s.animal_id}">
+            ${avatar(s.animal_nome, s.animal_especie)}
+            <span class="row-main"><span class="row-title">${esc(s.animal_nome)}</span>
+              <span class="row-sub">Tutor: ${esc(s.tutor_nome)}</span><span class="row-sub2">${esc(s.tutor_telefone)}</span></span>
+            ${icon('chevron-right', 'chev')}
+          </button>
+        </div>
+      </section>
+      <section class="group">${infoRow('note', 'Descrição', s.descricao || 'Sem descrição.', !s.descricao)}</section>
+      <button class="btn btn-danger btn-block" data-action="delete-service">${icon('trash')}Excluir serviço</button>`;
+    return { nav, body };
+  },
+
+  AnimalForm(route) {
+    const editing = Boolean(route.params.id);
+    const nav = navBar(editing ? 'Editar animal' : 'Novo animal', true);
+    const g = guard(route);
+    if (g) return { nav, body: g };
+    const f = route.form;
+    const e = route.errors;
+    const body = `
+      ${route.formError ? formBanner(route.formError) : ''}
+      <div class="form-group"><div class="form-card">
+        ${field({ name: 'nome', label: 'Nome', required: true, value: f.nome, placeholder: 'Ex.: Thor', error: e.nome, maxlength: 80 })}
+        ${choiceField({ name: 'especie', label: 'Espécie', required: true, value: f.especie, options: ESPECIES.map((x) => ({ value: x, label: x })), error: e.especie })}
+        ${field({ name: 'raca', label: 'Raça', value: f.raca, placeholder: 'Ex.: Golden Retriever', maxlength: 60 })}
+        ${field({ name: 'idade', label: 'Idade', value: f.idade, placeholder: '0', inputmode: 'numeric', suffix: 'anos', error: e.idade, maxlength: 2 })}
+      </div></div>
+      <div class="form-group"><h3 class="form-group-title">Tutor</h3><div class="form-card">
+        ${field({ name: 'tutor_nome', label: 'Nome do tutor', required: true, value: f.tutor_nome, placeholder: 'Ex.: Mariana Costa', error: e.tutor_nome, maxlength: 100 })}
+        ${field({ name: 'telefone', label: 'Telefone', required: true, value: f.telefone, placeholder: '(11) 98765-4321', inputmode: 'tel', error: e.telefone })}
+      </div></div>
+      <div class="form-group"><div class="form-card">
+        ${field({ name: 'observacoes', label: 'Observações', value: f.observacoes, placeholder: 'Alergias, comportamento, cuidados especiais…', textarea: true, maxlength: 500 })}
+      </div></div>
+      <p class="form-hint"><span class="req">*</span> Campos obrigatórios</p>`;
+    const footer = submitFooter(route, editing ? 'Salvar alterações' : 'Cadastrar animal');
+    return { nav, body, footer };
+  },
+
+  ServiceForm(route) {
+    const editing = Boolean(route.params.id);
+    const nav = navBar(editing ? 'Editar serviço' : 'Novo serviço', true);
+    const g = guard(route);
+    if (g) return { nav, body: g };
+    const { animais } = route.data;
+    if (!animais.length) {
+      return { nav, body: emptyState('paw', 'Nenhum animal cadastrado', 'Cadastre um animal antes de registrar um serviço.',
+        `<button class="btn btn-primary btn-sm" data-action="new-animal">${icon('plus')}Cadastrar animal</button>`) };
+    }
+    const f = route.form;
+    const e = route.errors;
+    const sel = animais.find((a) => a.id === Number(f.animal_id));
+    const body = `
+      ${route.formError ? formBanner(route.formError) : ''}
+      <div class="form-group"><div class="form-card">
+        <div class="field${e.animal_id ? ' invalid' : ''}" data-field-wrap="animal_id">
+          <span class="field-label">Animal <span class="req">*</span></span>
+          <button type="button" id="f-animal" class="select" data-action="open-picker" aria-haspopup="dialog">
+            ${sel ? `${avatar(sel.nome, sel.especie, 'sm')}<span class="sel-name"><b>${esc(sel.nome)}</b><small>${esc(sel.especie)} · ${esc(sel.tutor_nome)}</small></span>`
+                  : '<span class="placeholder">Selecionar animal</span>'}
+            ${icon('chevron-down', 'chev')}
+          </button>
+          ${e.animal_id ? `<span class="field-error">${esc(e.animal_id)}</span>` : ''}
+        </div>
+        ${choiceField({ name: 'tipo', label: 'Tipo de serviço', required: true, value: f.tipo, kind: 'tile', error: e.tipo, options: TIPOS.map((t) => ({ value: t.value, label: t.label, icon: t.value })) })}
+      </div></div>
+      <div class="form-group"><div class="form-card">
+        ${field({ name: 'data', label: 'Data', required: true, value: f.data, placeholder: 'DD/MM/AAAA', inputmode: 'numeric', error: e.data, maxlength: 10 })}
+        ${field({ name: 'valor', label: 'Valor', required: true, value: f.valor, placeholder: '0,00', inputmode: 'decimal', prefix: 'R$', error: e.valor, maxlength: 10 })}
+        ${choiceField({ name: 'status', label: 'Status', required: true, value: f.status, kind: 'seg', error: e.status, options: STATUS })}
+      </div></div>
+      <div class="form-group"><div class="form-card">
+        ${field({ name: 'descricao', label: 'Descrição', value: f.descricao, placeholder: 'Detalhes do atendimento…', textarea: true, maxlength: 500 })}
+      </div></div>
+      <p class="form-hint"><span class="req">*</span> Campos obrigatórios</p>`;
+    const footer = submitFooter(route, editing ? 'Salvar alterações' : 'Cadastrar serviço');
+    return { nav, body, footer };
+  },
+};
+
+function animalResults(route) {
+  const todos = route.data || [];
+  if (!todos.length) {
+    return emptyState('paw', 'Nenhum animal cadastrado', 'Cadastre o primeiro animal para começar a registrar serviços.',
+      `<button class="btn btn-primary btn-sm" data-action="new-animal">${icon('plus')}Cadastrar animal</button>`);
+  }
+  const termo = (route.search || '').trim().toLowerCase();
+  const lista = termo
+    ? todos.filter((a) => [a.nome, a.raca, a.tutor_nome, a.especie].some((v) => String(v || '').toLowerCase().includes(termo)))
+    : todos;
+  if (!lista.length) return `<div class="empty-card">Nenhum animal encontrado para “${esc(route.search.trim())}”.</div>`;
+  return `<p class="list-caption">${lista.length} ${lista.length === 1 ? 'animal' : 'animais'}</p>
+    <div class="group">${lista.map(animalRow).join('')}</div>`;
+}
+function submitFooter(route, label) {
+  return `<div class="screen-footer"><button class="btn btn-primary btn-block" data-action="submit"${route.saving ? ' disabled' : ''}>
+    ${route.saving ? `${spinner()}Salvando…` : label}</button></div>`;
+}
+function tabbar() {
+  const tabs = [['home', 'Início', 'home'], ['animals', 'Animais', 'paw'], ['services', 'Serviços', 'calendar']];
+  return `<nav class="tabbar" aria-label="Seções">${tabs.map(([k, l, ic]) =>
+    `<button class="tab${state.tab === k ? ' on' : ''}" data-action="tab" data-tab="${k}"${state.tab === k ? ' aria-current="page"' : ''}>${icon(ic)}<span>${l}</span></button>`).join('')}</nav>`;
+}
+
+/* ---------- Renderização ---------- */
+function render() {
+  const app = $('#app');
+  const route = currentRoute();
+  const oldScreen = app.querySelector('.screen');
+  if (oldScreen) {
+    const prev = findRoute(oldScreen.dataset.key);
+    const oldBody = oldScreen.querySelector('.screen-body');
+    if (prev && oldBody) prev.scroll = oldBody.scrollTop;
+  }
+  const active = document.activeElement;
+  const activeId = active && app.contains(active) ? active.id : '';
+  const selection = activeId && typeof active.selectionStart === 'number' ? [active.selectionStart, active.selectionEnd] : null;
+
+  const view = SCREENS[route.name](route);
+  const anim = pendingAnim;
+  pendingAnim = null;
+  app.innerHTML = `<div class="screen${anim ? ` anim-${anim}` : ''}" data-key="${route.key}">
+      ${view.nav}<div class="screen-body">${view.body}</div>${view.footer || ''}
+    </div>${view.tabbar && !state.stack.length ? tabbar() : ''}`;
+
+  const body = app.querySelector('.screen-body');
+  if (body && route.scroll) body.scrollTop = route.scroll;
+  if (activeId) {
+    const el = document.getElementById(activeId);
+    if (el) {
+      el.focus({ preventScroll: true });
+      if (selection && el.setSelectionRange) { try { el.setSelectionRange(selection[0], selection[1]); } catch (_) { /* ignora */ } }
+    }
+  }
+}
+
+function scrollToFirstError() {
+  const body = $('#app .screen-body');
+  const el = body && body.querySelector('.field.invalid');
+  if (!el) return;
+  body.scrollTop = Math.max(0, el.offsetTop - body.offsetTop - 12);
+}
+
+/* ---------- Folhas, avisos e ações ---------- */
+let sheetTimer;
+function openSheet(sheet) { state.sheet = sheet; renderSheet(); }
+function closeSheet() { state.sheet = null; renderSheet(); }
+function renderSheet() {
+  const layer = $('#sheet-layer');
+  const s = state.sheet;
+  clearTimeout(sheetTimer);
+  if (!s) {
+    layer.classList.remove('open');
+    sheetTimer = setTimeout(() => { layer.innerHTML = ''; layer.classList.remove('has'); }, 300);
+    return;
+  }
+  const wasOpen = layer.classList.contains('open');
+  if (s.type === 'confirm') {
+    layer.innerHTML = `<div class="scrim" data-action="sheet-cancel"></div>
+      <div class="action-sheet" role="alertdialog" aria-modal="true" aria-labelledby="as-title" aria-describedby="as-msg">
+        <div class="as-group">
+          <div class="as-head"><p class="as-title" id="as-title">${esc(s.title)}</p><p class="as-msg" id="as-msg">${esc(s.message)}</p></div>
+          <button class="as-btn as-danger" data-action="sheet-confirm"${s.busy ? ' disabled' : ''}>${s.busy ? `${spinner()}Excluindo…` : esc(s.confirmLabel)}</button>
+        </div>
+        <button class="as-btn as-cancel" data-action="sheet-cancel"${s.busy ? ' disabled' : ''}>Cancelar</button>
+      </div>`;
+  } else {
+    const route = currentRoute();
+    const selId = Number(route.form.animal_id);
+    layer.innerHTML = `<div class="scrim" data-action="sheet-cancel"></div>
+      <div class="picker-sheet" role="dialog" aria-modal="true" aria-labelledby="ps-title">
+        <div class="grabber"></div>
+        <div class="ps-head"><h3 id="ps-title">Selecionar animal</h3><button class="link" data-action="sheet-cancel">Fechar</button></div>
+        <div class="ps-list">${route.data.animais.map((a) => `<button class="row row-btn" data-action="pick-animal" data-id="${a.id}" aria-pressed="${a.id === selId}">
+          ${avatar(a.nome, a.especie)}
+          <span class="row-main"><span class="row-title">${esc(a.nome)}</span><span class="row-sub">${esc(a.especie)} · ${esc(a.tutor_nome)}</span></span>
+          ${a.id === selId ? icon('check', 'check') : ''}</button>`).join('')}</div>
+      </div>`;
+  }
+  layer.classList.add('has');
+  if (!wasOpen) {
+    void layer.offsetWidth;
+    layer.classList.add('open');
+    const first = layer.querySelector('.as-cancel, .ps-list .row');
+    if (first) first.focus({ preventScroll: true });
+  }
+}
+async function runSheet() {
+  const s = state.sheet;
+  if (!s || s.busy) return;
+  s.busy = true;
+  renderSheet();
+  try {
+    await s.run();
+    closeSheet();
+  } catch (err) {
+    closeSheet();
+    showToast(err.message, 'error');
+  }
+}
+
+let toastTimer;
+function showToast(msg, kind = 'ok') {
+  const t = $('#toast');
+  t.className = `toast ${kind}`;
+  t.innerHTML = `${icon(kind === 'ok' ? 'check-circle' : 'alert')}<span>${esc(msg)}</span>`;
+  void t.offsetWidth;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), kind === 'ok' ? 2400 : 4000);
+}
+
+function confirmDeleteAnimal(route) {
+  const a = route.data;
+  const n = a.servicos.length;
+  const extra = n === 0 ? '' : n === 1 ? 'O serviço do histórico também será excluído. ' : `Os ${n} serviços do histórico também serão excluídos. `;
+  openSheet({
+    type: 'confirm',
+    title: `Excluir ${a.nome}?`,
+    message: `${extra}Esta ação não pode ser desfeita.`,
+    confirmLabel: 'Excluir animal',
+    run: async () => {
+      await demoApi.excluirAnimal(a.id);
+      popToTop();
+      showToast('Animal excluído');
+    },
+  });
+}
+function confirmDeleteService(route) {
+  const s = route.data;
+  openSheet({
+    type: 'confirm',
+    title: `Excluir ${tipoInfo(s.tipo).label.toLowerCase()} de ${s.animal_nome}?`,
+    message: `Serviço de ${formatDate(s.data)}. Esta ação não pode ser desfeita.`,
+    confirmLabel: 'Excluir serviço',
+    run: async () => {
+      await demoApi.excluirServico(s.id);
+      goBack();
+      showToast('Serviço excluído');
+    },
+  });
+}
+
+async function submit(route) {
+  if (route.saving) return;
+  const isAnimal = route.name === 'AnimalForm';
+  route.errors = isAnimal ? validarAnimal(route.form) : validarServico(route.form);
+  route.formError = null;
+  if (Object.keys(route.errors).length) {
+    route.formError = 'Confira os campos destacados.';
+    render();
+    scrollToFirstError();
+    return;
+  }
+  route.saving = true;
+  render();
+  const id = route.params.id;
+  try {
+    if (isAnimal) {
+      const dados = animalPayload(route.form);
+      await (id ? demoApi.atualizarAnimal(id, dados) : demoApi.criarAnimal(dados));
+    } else {
+      const dados = servicoPayload(route.form);
+      await (id ? demoApi.atualizarServico(id, dados) : demoApi.criarServico(dados));
+    }
+    route.saving = false;
+    goBack();
+    showToast(id ? 'Alterações salvas' : isAnimal ? 'Animal cadastrado' : 'Serviço cadastrado');
+  } catch (err) {
+    route.saving = false;
+    route.formError = err.message;
+    if (err.campos) route.errors = err.campos;
+    if (currentRoute() === route) render();
+  }
+}
+
+function clearFieldError(route, name) {
+  if (!route.errors || !route.errors[name]) return;
+  delete route.errors[name];
+  const wrap = document.querySelector(`[data-field-wrap="${name}"]`);
+  if (wrap) {
+    wrap.classList.remove('invalid');
+    const msg = wrap.querySelector('.field-error');
+    if (msg) msg.remove();
+  }
+}
+
+const ACTIONS = {
+  tab: (el) => switchTab(el.dataset.tab),
+  back: () => goBack(),
+  retry: () => load(currentRoute()),
+  'goto-animals': () => switchTab('animals'),
+  'goto-services': (el) => { state.roots.services.filter = el.dataset.filter || 'todos'; switchTab('services'); },
+  filter: (el) => { const r = currentRoute(); r.filter = el.dataset.value; r.scroll = 0; render(); },
+  'new-animal': () => navigate('AnimalForm', {}, true),
+  'edit-animal': (el) => navigate('AnimalForm', { id: Number(el.dataset.id) }, true),
+  'new-service': (el) => navigate('ServiceForm', { animalId: el.dataset.animal ? Number(el.dataset.animal) : null }, true),
+  'edit-service': (el) => navigate('ServiceForm', { id: Number(el.dataset.id) }, true),
+  'open-animal': (el) => navigate('AnimalDetail', { id: Number(el.dataset.id) }),
+  'open-service': (el) => navigate('ServiceDetail', { id: Number(el.dataset.id) }),
+  pick: (el) => {
+    const r = currentRoute();
+    r.form[el.dataset.name] = el.dataset.value;
+    delete r.errors[el.dataset.name];
+    render();
+  },
+  'open-picker': () => openSheet({ type: 'picker' }),
+  'pick-animal': (el) => {
+    const r = currentRoute();
+    r.form.animal_id = Number(el.dataset.id);
+    delete r.errors.animal_id;
+    closeSheet();
+    render();
+  },
+  'delete-animal': () => confirmDeleteAnimal(currentRoute()),
+  'delete-service': () => confirmDeleteService(currentRoute()),
+  'sheet-confirm': () => runSheet(),
+  'sheet-cancel': () => { if (!state.sheet || !state.sheet.busy) closeSheet(); },
+  submit: () => submit(currentRoute()),
+};
+
+$('#phone').addEventListener('click', (e) => {
+  const el = e.target.closest('[data-action]');
+  if (!el || el.disabled) return;
+  const fn = ACTIONS[el.dataset.action];
+  if (fn) fn(el);
+});
+
+$('#app').addEventListener('input', (e) => {
+  const el = e.target;
+  const route = currentRoute();
+  if (el.id === 'animal-search') {
+    route.search = el.value;
+    const box = $('#animal-results');
+    if (box) box.innerHTML = animalResults(route);
+    return;
+  }
+  const name = el.dataset.field;
+  if (!name || !route.form) return;
+  const masks = { telefone: maskPhone, data: maskDate, valor: maskMoney, idade: (v) => v.replace(/\D/g, '').slice(0, 2) };
+  const value = masks[name] ? masks[name](el.value) : el.value;
+  if (value !== el.value) el.value = value;
+  route.form[name] = value;
+  clearFieldError(route, name);
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && state.sheet && !state.sheet.busy) closeSheet();
+});
+
+/* ---------- Painel da demonstração ---------- */
+$('#brand-mark').innerHTML = `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true">${ICONS.paw}</svg>`;
+$('#btn-reset').innerHTML = `${icon('refresh')}Restaurar dados de exemplo`;
+$('#btn-reset').addEventListener('click', () => {
+  demo.db = seedDadosDeExemplo();
+  closeSheet();
+  resetNavigation();
+  pendingAnim = 'fade';
+  load(currentRoute());
+  showToast('Dados de exemplo restaurados');
+});
+$('#sw-fail').addEventListener('change', (e) => {
+  demo.falhar = e.target.checked;
+  if (demo.falhar) {
+    showToast('Falha simulada: as próximas ações vão falhar', 'error');
+  } else {
+    showToast('Conexão com a API restaurada');
+    const r = currentRoute();
+    if (r.status === 'error') load(r);
+  }
+});
+
+resetNavigation();
+load(currentRoute());
+})();
+</script>
