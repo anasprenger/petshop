@@ -5,6 +5,8 @@
       "name": "start",
       "runtimeExecutable": "npm",
       "runtimeArgs": [
+        "--prefix",
+        "mobile",
         "run",
         "start",
         "--",
